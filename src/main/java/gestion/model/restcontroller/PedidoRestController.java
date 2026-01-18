@@ -22,7 +22,7 @@ public class PedidoRestController {
 	@Autowired
 	private PedidoService pedidoService;
 	
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<?> dame(){
 		return ResponseEntity.ok().body(pedidoService.findAll());
 	}
@@ -33,7 +33,7 @@ public class PedidoRestController {
 		return ResponseEntity.ok().body(pedidoService.findById(id));
 	}
 	
-	@PostMapping("/")
+	@PostMapping
 	public ResponseEntity<?> inserta(@RequestBody Pedido pedido){
 		return ResponseEntity.status(201).body(pedidoService.insertOne(pedido));
 	}

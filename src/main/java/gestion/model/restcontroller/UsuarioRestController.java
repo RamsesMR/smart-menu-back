@@ -25,7 +25,7 @@ public class UsuarioRestController {
 	private UsuarioService usuarioService;
 	
 	//ESTA RUTA IMPLEMENTA DTO DE USUARIO PARA NO DEVOLVER LOS DATOS SENSIBLES 
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<?> todos(){
 		return ResponseEntity.ok().body(usuarioService.findAllDto());
 	}

@@ -11,19 +11,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import gestion.model.collections.Categoria;
 import gestion.model.service.CategoriaService;
 import gestion.model.service.CategoriaServiceImpl;
 
-@Controller
+@RestController
 @RequestMapping("/categoria")
 public class CategoriaRestController {
 
 	@Autowired
 	private CategoriaServiceImpl categoriaService;
 	
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<?> dameDame(){
 		return ResponseEntity.ok().body(categoriaService.findAll());
 	}

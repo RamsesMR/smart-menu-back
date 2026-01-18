@@ -7,17 +7,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import gestion.model.service.RestauranteService;
 
-@Controller
+@RestController
 @RequestMapping("/restaurante")
 public class RestauranteRestController {
 
 	@Autowired
 	private RestauranteService restauranteService;
 	
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<?> todos(){
 		return ResponseEntity.ok().body(restauranteService.findAll());
 	}
@@ -27,3 +28,4 @@ public class RestauranteRestController {
 		return ResponseEntity.ok().body(restauranteService.findById(id));
 	}
 }
+ 

@@ -11,18 +11,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import gestion.model.collections.Producto;
 import gestion.model.service.ProductoService;
 
-@Controller
+@RestController
 @RequestMapping("/producto")
 public class ProductoRestController {
 
 	@Autowired
 	private ProductoService productoService;
 	
-	@GetMapping("/")
+	@GetMapping
 	public ResponseEntity<?> dameTodos(){
 		
 		return ResponseEntity.ok().body(productoService.findAll());
