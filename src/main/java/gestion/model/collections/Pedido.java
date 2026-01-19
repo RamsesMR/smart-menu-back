@@ -14,6 +14,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
 @Document(collection = "pedido")
 @Data
@@ -29,6 +31,7 @@ public class Pedido implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId id;
 	private EstadoPedido estadoPedido;
 	private String nota;
