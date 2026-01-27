@@ -64,6 +64,10 @@ public class SecurityConfig {
 
                 // POST/PUT/DELETE producto protegido
                 .requestMatchers("/producto/**").hasAnyRole("EMPRESA", "CLIENTE")
+                .requestMatchers("/recommendations/**").hasAnyRole("EMPRESA", "CLIENTE")
+
+       
+
 
                 .anyRequest().authenticated()
             )

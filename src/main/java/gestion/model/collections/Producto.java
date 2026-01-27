@@ -3,6 +3,7 @@ package gestion.model.collections;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -33,6 +34,15 @@ public class Producto implements Serializable {/**
 	private BigDecimal precioConIva;
 	private String imagen;
 	private boolean disponible;
+	private List<String> tags;
+	private List<String> alergenos;
+	private Integer kcal;
+	private BigDecimal proteinas;
+	private BigDecimal grasas;
+	private BigDecimal carbohidratos;
+	private ObjectId restauranteId;
+
+
 	
 	
 	public void calcularIva() {
