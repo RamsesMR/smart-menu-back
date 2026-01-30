@@ -1,82 +1,80 @@
 package gestion.security;
 
-import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import org.springframework.web.cors.CorsConfiguration;
+
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
 
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-        		  "http://localhost:4200",
-        		  "http://lakritas.com",
-        		  "https://lakritas.com"
-        		));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true);
+	@Autowired
+	private CorsConfigurationSource corsConfigurationSource;
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+	@Autowired
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
+	
+	//Activar encriptación de password
+		@Bean
+	    PasswordEncoder passwordEncoder() {
+	        return new BCryptPasswordEncoder();
+	    }
+		@Bean
+	    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	        return config.getAuthenticationManager();
+	    }
 
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	  http
+	    .csrf(AbstractHttpConfigurer::disable)
+	    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+	    .cors(cors -> cors.configurationSource(corsConfigurationSource))
+	    .formLogin(AbstractHttpConfigurer::disable)
+	    .logout(AbstractHttpConfigurer::disable)
+	    .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+	    .authorizeHttpRequests(auth -> auth
+	      .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-            // ✅ aplica CORS sí o sí
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+	      // auth público (login/register)
+	      .requestMatchers("/auth/**").permitAll()
 
-            // ✅ IMPORTANTÍSIMO: evita redirects a /login
-            .formLogin(AbstractHttpConfigurer::disable)
-            .logout(AbstractHttpConfigurer::disable)
+	      // público
+	      .requestMatchers("/restaurante/**").permitAll()
 
-            // ✅ en vez de 302, devuelve 401
-            .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+	      // protegido
+	      .requestMatchers("/pedido/**").hasAnyRole("EMPRESA","CLIENTE")
+	      .requestMatchers("/categoria/**").hasAnyRole("EMPRESA","CLIENTE")
+	      .requestMatchers("/producto/**").hasAnyRole("EMPRESA","CLIENTE")
+	      .requestMatchers("/recommendations/**").hasAnyRole("EMPRESA","CLIENTE")
 
-            .authorizeHttpRequests(auth -> auth
-                // ✅ preflight
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+	      .anyRequest().authenticated()
+	    );
 
-                .requestMatchers("/restaurante/**").permitAll()
+	  http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-                .requestMatchers("/pedido/**").hasAnyRole("EMPRESA", "CLIENTE") //aqui dejo empresa y cliente solo para hacer las pruebas para no tener que estar logeando a cada rato pero en realidad solo debe de ir empresa
-                .requestMatchers("/categoria/**").hasAnyRole("EMPRESA", "CLIENTE")
-                .requestMatchers("/producto/**").hasAnyRole("EMPRESA", "CLIENTE")
+	  return http.build();
+	}
 
-                // POST/PUT/DELETE producto protegido
-                .requestMatchers("/producto/**").hasAnyRole("EMPRESA", "CLIENTE")
-                .requestMatchers("/recommendations/**").hasAnyRole("EMPRESA", "CLIENTE")
-
-       
-
-
-                .anyRequest().authenticated()
-            )
-            .httpBasic(Customizer.withDefaults());
-
-        return http.build();
-    }
 }
