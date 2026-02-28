@@ -23,7 +23,7 @@ public class RecommendationService {
     private final ProductoRepository productoRepository;
 
     public RecommendationResponse recomendar(RecommendationRequest req) {
-        if (req == null || req.getRestauranteId() == null) {
+        if (req == null ) {
             return RecommendationResponse.builder().kcalObjetivo(0).menus(List.of()).build();
         }
 
@@ -33,8 +33,13 @@ public class RecommendationService {
                 ? req.getKcalObjetivo()
                 : estimarKcalMifflin(req);
 
-        List<Producto> base = productoRepository
-                .findByRestauranteIdAndDisponibleTrue(req.getRestauranteId());
+        List<Producto> base;
+
+        if (req.getRestauranteId() != null) {
+            base = productoRepository.findByRestauranteIdAndDisponibleTrue(req.getRestauranteId());
+        } else {
+            base = productoRepository.findByDisponibleTrue();
+        }
 
         List<Producto> filtrados = base.stream()
                 .filter(p -> p.getKcal() != null)
