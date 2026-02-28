@@ -2,15 +2,7 @@ package gestion.model.restcontroller;
 
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import gestion.model.collections.DTO.EstadoUpdateDto;
 import gestion.model.collections.Pedido;
@@ -30,7 +22,7 @@ public class PedidoRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> dameUno(@PathVariable String id) {
+    public ResponseEntity<?> dameUno(@PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
         Pedido pedido = pedidoService.findById(new ObjectId(id));
         if (pedido == null) return ResponseEntity.notFound().build();
@@ -38,12 +30,12 @@ public class PedidoRestController {
     }
 
     @GetMapping("/mesa/{mesaId}")
-    public ResponseEntity<?> porMesa(@PathVariable String mesaId) {
+    public ResponseEntity<?> porMesa(@PathVariable("mesaId") String mesaId) {
         return ResponseEntity.ok(pedidoService.findByMesaId(mesaId));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<?> porUsuario(@PathVariable String usuarioId) {
+    public ResponseEntity<?> porUsuario(@PathVariable("usuarioId") String usuarioId) {
         if (!ObjectId.isValid(usuarioId)) return ResponseEntity.badRequest().body("ID inválido");
         return ResponseEntity.ok(pedidoService.findByUsuarioId(new ObjectId(usuarioId)));
     }
@@ -57,7 +49,7 @@ public class PedidoRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> edita(@PathVariable String id, @RequestBody Pedido pedido) {
+    public ResponseEntity<?> edita(@PathVariable("id") String id, @RequestBody Pedido pedido) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
         pedido.setId(new ObjectId(id));
         Pedido actualizado = pedidoService.updateOne(pedido);
@@ -66,7 +58,7 @@ public class PedidoRestController {
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<?> cambiarEstado(@PathVariable String id,
+    public ResponseEntity<?> cambiarEstado(@PathVariable("id") String id,
                                            @RequestBody EstadoUpdateDto dto) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
         Pedido actualizado = pedidoService.cambiarEstado(new ObjectId(id), dto.getEstado());
@@ -75,7 +67,7 @@ public class PedidoRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> borra(@PathVariable String id) {
+    public ResponseEntity<?> borra(@PathVariable("id") String id) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
         int resultado = pedidoService.deleteOne(new ObjectId(id));
         if (resultado == 1) return ResponseEntity.noContent().build();
