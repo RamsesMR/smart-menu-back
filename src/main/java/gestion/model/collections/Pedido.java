@@ -33,6 +33,7 @@ public class Pedido implements Serializable {
     private ObjectId id;
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId usuarioId;          // FK al cliente (relación 1:N)
+    private String codigo;
     private String mesaId;
     private EstadoPedido estado;
     private String nota;

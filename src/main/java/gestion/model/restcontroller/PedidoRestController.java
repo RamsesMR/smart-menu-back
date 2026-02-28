@@ -43,6 +43,7 @@ public class PedidoRestController {
     @PostMapping
     public ResponseEntity<?> inserta(@RequestBody Pedido pedido) {
         pedido.setId(null); // dejamos que MongoDB genere el ID
+        pedido.setCodigo(generarCodigo(pedido.getMesaId()));
         Pedido guardado = pedidoService.insertOne(pedido);
         if (guardado == null) return ResponseEntity.status(409).body("El pedido ya existe");
         return ResponseEntity.status(201).body(guardado);
@@ -72,5 +73,18 @@ public class PedidoRestController {
         int resultado = pedidoService.deleteOne(new ObjectId(id));
         if (resultado == 1) return ResponseEntity.noContent().build();
         return ResponseEntity.notFound().build();
+    }
+    
+    
+    private String generarCodigo(String mesaId) {
+        // Ej: "Mesa 1" -> "M1"
+        String mesa = (mesaId == null) ? "M?" : mesaId.replaceAll("[^0-9]", "");
+        if (mesa.isBlank()) mesa = "X";
+        String prefix = "M" + mesa;
+
+        // 4 chars random (rápido y suficiente)
+        String rnd = java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 4).toUpperCase();
+
+        return prefix + "-" + rnd;
     }
 }
