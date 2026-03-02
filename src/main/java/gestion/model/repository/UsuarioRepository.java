@@ -10,7 +10,5 @@ import gestion.model.collections.Usuario;
 public interface UsuarioRepository extends MongoRepository<Usuario, ObjectId> {
 	
 	Usuario findByEmail(String email);
-	
-	Usuario findByEmailAndContrasena(String email, String contrasena);
 
 }

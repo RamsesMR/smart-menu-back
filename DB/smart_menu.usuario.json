@@ -1,40 +1,60 @@
 [{
   "_id": {
-    "$oid": "6960124aac4ad7ebb0682fa5"
+    "$oid": "697de94f324a8e529ec8b67e"
   },
-  "nombre": "MESA 1",
-  "email": "maria@correo.com",
-  "contrasena": "{noop}1234",
+  "nombre": "Tablet 1",
+  "email": "tablet@restaurante.com",
+  "contrasena": "$2a$10$8D0oVKqrvP9qC7GfERgUoe8hw31TwH7AEiR.WjGPuP51r3Xa2aBt6",
   "rol": "CLIENTE",
   "_class": "gestion.model.collections.Usuario"
 },
 {
   "_id": {
-    "$oid": "69601269ac4ad7ebb0682fa6"
+    "$oid": "697f3fa385c72f9875a8a723"
   },
-  "nombre": "MESA 2",
-  "email": "empresa@logistica.com",
-  "contrasena": "{noop}1234",
-  "rol": "CLIENTE",
+  "nombre": "Tablet 3",
+  "email": "tablet3@restaurante.com",
+  "contrasena": "$2a$10$8vGCkMrURCa33.Q8mUxhROCTZLtdujBxCa0tUQwN8O.NMziDZS2rm",
+  "rol": "EMPRESA",
   "_class": "gestion.model.collections.Usuario"
 },
 {
   "_id": {
-    "$oid": "69601274ac4ad7ebb0682fa7"
+    "$oid": "697f3fdd85c72f9875a8a724"
   },
-  "nombre": "MESA 3",
-  "email": "juan@correo.com",
-  "contrasena": "{noop}1234",
-  "rol": "CLIENTE",
+  "nombre": "USER1",
+  "email": "USER1@restaurante.com",
+  "contrasena": "$2a$10$TsmQ.2DW3VpCU/pvegM.EetURVmIaLn0k876mD.CL.FVfpyu1DmzS",
+  "rol": "EMPRESA",
   "_class": "gestion.model.collections.Usuario"
 },
 {
   "_id": {
-    "$oid": "696235f0418fd86563bc0036"
+    "$oid": "699e82d26ae58a27470461c0"
   },
-  "nombre": "Empresa",
-  "email": "empresa@correo.com",
-  "contrasena": "{noop}1234",
+  "nombre": "Bryan",
+  "email": "bryanpa1@gmail.com",
+  "contrasena": "$2a$10$PKk8IS2GWQ4DIMuwjwe6MevR9eaYMkDJQHPWXJiILwwug0arxxoqG",
+  "rol": "EMPRESA",
+  "_class": "gestion.model.collections.Usuario"
+},
+{
+  "_id": {
+    "$oid": "699e859a6ae58a27470461c1"
+  },
+  "nombre": "Tomas",
+  "email": "tomas@restaurante.com",
+  "contrasena": "$2a$10$5kDgWRQNqFrcQ.W.7qIXtuE7QmN54ZCGcsjCYcVHSUNg3sxT8ulEe",
+  "rol": "EMPRESA",
+  "_class": "gestion.model.collections.Usuario"
+},
+{
+  "_id": {
+    "$oid": "699f5c8e6ae58a27470461c2"
+  },
+  "nombre": "ramses",
+  "email": "ramses@ramses.com",
+  "contrasena": "$2a$10$ZrXjPY9cNJ1rLhYq2tVqNuAVgoN1tJ882jV6LvzyqHIPUFYSUZDaC",
   "rol": "EMPRESA",
   "_class": "gestion.model.collections.Usuario"
 }]

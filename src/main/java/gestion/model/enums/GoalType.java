@@ -1,5 +1,6 @@
 package gestion.model.enums;
 
 public enum GoalType {
-  PERDER, MANTENER, GANAR
+	PERDER_PESO, MANTENER, GANAR_MUSCULO
+
 }

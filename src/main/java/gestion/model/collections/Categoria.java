@@ -6,6 +6,9 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +27,7 @@ public class Categoria implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId id;
 	private String nombre;
 	private String descripcion;

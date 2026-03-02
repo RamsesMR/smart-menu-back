@@ -1,31 +1,28 @@
 package gestion.model.restcontroller;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import gestion.model.service.RestauranteService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/restaurante")
+@RequiredArgsConstructor
 public class RestauranteRestController {
 
-	@Autowired
-	private RestauranteService restauranteService;
-	
-	@GetMapping
-	public ResponseEntity<?> todos(){
-		return ResponseEntity.ok().body(restauranteService.findAll());
-	}
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<?> uno(@PathVariable ObjectId id){
-		return ResponseEntity.ok().body(restauranteService.findById(id));
-	}
+    private final RestauranteService restauranteService;
+
+    @GetMapping
+    public ResponseEntity<?> todos() {
+        return ResponseEntity.ok(restauranteService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> uno(@PathVariable ObjectId id) {
+        var restaurante = restauranteService.findById(id);
+        if (restaurante == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(restaurante);
+    }
 }
- 

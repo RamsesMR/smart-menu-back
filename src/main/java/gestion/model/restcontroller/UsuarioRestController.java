@@ -1,61 +1,47 @@
 package gestion.model.restcontroller;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import gestion.model.collections.Usuario;
 import gestion.model.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-
-@RequestMapping("usuario")
+@RequestMapping("/usuario")
+@RequiredArgsConstructor
 public class UsuarioRestController {
 
-	@Autowired
-	private UsuarioService usuarioService;
-	
-	//ESTA RUTA IMPLEMENTA DTO DE USUARIO PARA NO DEVOLVER LOS DATOS SENSIBLES 
-	@GetMapping
-	public ResponseEntity<?> todos(){
-		return ResponseEntity.ok().body(usuarioService.findAllDto());
-	}
-	
-	//ESTA OTRA RUTA TAMBIEN IMPLEMENTA EL DTO PARA NO DEOLVER SENSIBLES DEL USUARIO
-	@GetMapping("/{id}")
-	public ResponseEntity<?> uno(@PathVariable ObjectId id){
-		return ResponseEntity.ok().body(usuarioService.findByIdDto(id));
-	}
-	
-	@PostMapping("/")
-	public ResponseEntity<?> insertta(@RequestBody Usuario usuario){
-		return ResponseEntity.status(201).body(usuarioService.insertOne(usuario));
-	}
-	
-	@PutMapping("/")
-	public ResponseEntity<?> actua(@RequestBody Usuario usuario){
-		return ResponseEntity.status(201).body(usuarioService.updateOne(usuario));
-	}
-	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> borra (@PathVariable ObjectId id){
-		
-		int resultado = usuarioService.deleteOne(id);
-		if(resultado == 1) {
-			return ResponseEntity.noContent().build();
-			
-		}else {
-			return ResponseEntity.notFound().build();
-		}
-	}
-	
+    private final UsuarioService usuarioService;
+
+    // Devuelve DTOs: nunca expone contraseña ni datos sensibles
+    @GetMapping
+    public ResponseEntity<?> todos() {
+        return ResponseEntity.ok(usuarioService.findAllDto());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> uno(@PathVariable ObjectId id) {
+        var dto = usuarioService.findByIdDto(id);
+        if (dto == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> borra(@PathVariable ObjectId id) {
+        int resultado = usuarioService.deleteOne(id);
+        if (resultado == 1) return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
+    }
+
+    // Nota: creación de usuarios → /auth/register (con BCrypt)
+    //       actualización de perfil biométrico → PUT /usuario/{id}
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualiza(@PathVariable ObjectId id,
+                                       @RequestBody gestion.model.collections.Usuario usuario) {
+        usuario.setId(id);
+        var actualizado = usuarioService.updateOne(usuario);
+        if (actualizado == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(actualizado);
+    }
 }
