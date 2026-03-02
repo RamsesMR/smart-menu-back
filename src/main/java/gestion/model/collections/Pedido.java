@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.ToStringSerializer;
@@ -32,12 +33,13 @@ public class Pedido implements Serializable {
     @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId id;
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId usuarioId;          // FK al cliente (relación 1:N)
+    private ObjectId usuarioId; // FK al cliente (relación 1:N)
     private String codigo;
     private String mesaId;
     private EstadoPedido estado;
     private String nota;
     private List<LineaPedido> lineasPedido;
     private BigDecimal totalPedido;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime fechaCreacion; // ISODate con hora para dashboard cocina
 }
