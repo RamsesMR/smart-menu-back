@@ -3,7 +3,6 @@ package gestion.model.service;
 import java.util.List;
 
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,106 +11,86 @@ import org.springframework.stereotype.Service;
 import gestion.model.collections.Usuario;
 import gestion.model.collections.DTO.UsuarioDto;
 import gestion.model.repository.UsuarioRepository;
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
-	
-	private UsuarioDto toDto(Usuario u) {
-	    if (u == null) return null;
-	    return UsuarioDto.builder()
-	            .nombre(u.getNombre())
-	            .rol(u.getRol().name())
-	            .build();
-	}
 
-	private List<UsuarioDto> toDtoList(List<Usuario> lista) {
-	    if (lista == null) return null;
-	    return lista.stream()
-	    		.map(this::toDto)
-	    		.toList();
-	}
+    private final UsuarioRepository usuarioRepository;
 
-	
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+    // Mapeo a DTO (sin datos sensibles)
+    private UsuarioDto toDto(Usuario u) {
+        if (u == null) return null;
+        return UsuarioDto.builder()
+                .nombre(u.getNombre())
+                .rol(u.getRol().name())
+                .build();
+    }
 
-	@Override
-	public Usuario findById(ObjectId usuarioID) {
-		// TODO Auto-generated method stub
-		return usuarioRepository.findById(usuarioID).orElse(null);
-	}
+    private List<UsuarioDto> toDtoList(List<Usuario> lista) {
+        if (lista == null) return List.of();
+        return lista.stream().map(this::toDto).toList();
+    }
 
-	@Override
-	public List<Usuario> findAll() {
-		// TODO Auto-generated method stub
-		return usuarioRepository.findAll();
-	}
+    // UsuarioService 
+    @Override
+    public Usuario findById(ObjectId usuarioId) {
+        return usuarioRepository.findById(usuarioId).orElse(null);
+    }
 
-	@Override
-	public Usuario updateOne(Usuario usuario) {
-		// TODO Auto-generated method stub
-		if(usuarioRepository.existsById(usuario.getId())) {
-			
-			return usuarioRepository.save(usuario);
-		}
-		return null;
-	}
+    @Override
+    public List<Usuario> findAll() {
+        return usuarioRepository.findAll();
+    }
 
-	@Override
-	public Usuario insertOne(Usuario usuario) {
-		// TODO Auto-generated method stub
-	if(usuario.getId() == null || !usuarioRepository.existsById(usuario.getId())) {
-			
-			return usuarioRepository.save(usuario);
-		}
-		return null;
-	}
-	
-	@Override
-	public Usuario buscarPorUsernamePassword(String username, String password) {
-		// TODO Auto-generated method stub
-		return usuarioRepository.findByEmailAndContrasena(username, password);
-	}
+    @Override
+    public List<UsuarioDto> findAllDto() {
+        return toDtoList(usuarioRepository.findAll());
+    }
 
-	@Override
-	public int deleteOne(ObjectId UsuarioId) {
-		// TODO Auto-generated method stub
-		if(usuarioRepository.existsById(UsuarioId)) {
-			usuarioRepository.deleteById(UsuarioId);
-			return 1;
-		}
-		return 0;
-	}
+    @Override
+    public UsuarioDto findByIdDto(ObjectId usuarioId) {
+        return toDto(usuarioRepository.findById(usuarioId).orElse(null));
+    }
 
-	@Override
-	public Usuario buscaPorEmail(String email) {
-		// TODO Auto-generated method stub
-		return usuarioRepository.findByEmail(email);
-	}
+    @Override
+    public Usuario insertOne(Usuario usuario) {
+        if (usuario.getId() == null || !usuarioRepository.existsById(usuario.getId())) {
+            return usuarioRepository.save(usuario);
+        }
+        return null;
+    }
 
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		
-		Usuario user = usuarioRepository.findByEmail(email);
-		if(user == null) {
-			
-			throw new UsernameNotFoundException("Usuario no encontrado");
-		}else {
-			return user;
-		}
-		
-	}
+    @Override
+    public Usuario updateOne(Usuario usuario) {
+        if (usuarioRepository.existsById(usuario.getId())) {
+            return usuarioRepository.save(usuario);
+        }
+        return null;
+    }
 
-	@Override
-	public List<UsuarioDto> findAllDto() {
-		
-		List<Usuario> usuarios = usuarioRepository.findAll();
-		return toDtoList(usuarios);
-	}
+    @Override
+    public int deleteOne(ObjectId usuarioId) {
+        if (usuarioRepository.existsById(usuarioId)) {
+            usuarioRepository.deleteById(usuarioId);
+            return 1;
+        }
+        return 0;
+    }
 
-	@Override
-	public UsuarioDto findByIdDto(ObjectId usuarioID) {
-		Usuario usuario = usuarioRepository.findById(usuarioID).orElse(null);
-		return toDto(usuario);
-	}
+    @Override
+    public Usuario buscaPorEmail(String email) {
+        return usuarioRepository.findByEmail(email);
+    }
 
+    // UserDetailsService (Spring Security)
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Usuario user = usuarioRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuario no encontrado: " + email);
+        }
+        return user;
+    }
 }

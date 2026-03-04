@@ -20,7 +20,7 @@ public class JwtSecurityService {
   @Value("${jwt.secret}")
   private String secretBase64;
 
-  @Value("${jwt.expiration-ms:86400000}")
+  @Value("${jwt.expiration-ms:3600000}")
   private long expirationMs;
 
   private Key signingKey() {

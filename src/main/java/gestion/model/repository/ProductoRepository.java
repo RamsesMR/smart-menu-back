@@ -17,6 +17,8 @@ public interface ProductoRepository extends MongoRepository<Producto, ObjectId> 
 	      ObjectId restauranteId,
 	      ObjectId categoriaId
 	  );
+	  List<Producto> findByDisponibleTrue();
 
+	  
 	
 }
