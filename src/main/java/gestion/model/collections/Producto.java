@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 @Document(collection  = "producto")
 @Data
 @AllArgsConstructor
@@ -24,7 +26,9 @@ public class Producto implements Serializable {/**
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId id;
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId categoriaId;
 	private String nombre;
 	private String descripcion;
@@ -40,6 +44,7 @@ public class Producto implements Serializable {/**
 	private BigDecimal proteinas;
 	private BigDecimal grasas;
 	private BigDecimal carbohidratos;
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId restauranteId;
 
 

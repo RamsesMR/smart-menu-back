@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 
 import org.bson.types.ObjectId;
 
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +25,7 @@ public class LineaPedido implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-
+	@JsonSerialize(using = ToStringSerializer.class)
 	private ObjectId productoId;
 	private String nombreActual;
 	private BigDecimal precioActual;

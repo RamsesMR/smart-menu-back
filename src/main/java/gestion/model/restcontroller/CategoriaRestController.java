@@ -21,8 +21,9 @@ public class CategoriaRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> dameUna(@PathVariable ObjectId id) {
-        Categoria categoria = categoriaService.findById(id);
+    public ResponseEntity<?> dameUna(@PathVariable("id") String id) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        Categoria categoria = categoriaService.findById(new ObjectId(id));
         if (categoria == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(categoria);
     }
@@ -35,16 +36,18 @@ public class CategoriaRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> edita(@PathVariable ObjectId id, @RequestBody Categoria categoria) {
-        categoria.setId(id);
+    public ResponseEntity<?> edita(@PathVariable("id") String id, @RequestBody Categoria categoria) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        categoria.setId(new ObjectId(id));
         Categoria actualizada = categoriaService.updateOne(categoria);
         if (actualizada == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(actualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> borra(@PathVariable ObjectId id) {
-        int resultado = categoriaService.deleteOne(id);
+    public ResponseEntity<?> borra(@PathVariable("id") String id) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        int resultado = categoriaService.deleteOne(new ObjectId(id));
         if (resultado == 1) return ResponseEntity.noContent().build();
         return ResponseEntity.notFound().build();
     }

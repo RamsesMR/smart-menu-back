@@ -22,13 +22,15 @@ public class ProductoRestController {
 
     // GET /producto/disponibles?restauranteId=abc123
     @GetMapping("/disponibles")
-    public ResponseEntity<?> disponibles(@RequestParam ObjectId restauranteId) {
-        return ResponseEntity.ok(productoService.findDisponiblesByRestaurante(restauranteId));
+    public ResponseEntity<?> disponibles(@RequestParam("restauranteId") String restauranteId) {
+        if (!ObjectId.isValid(restauranteId)) return ResponseEntity.badRequest().body("ID inválido");
+        return ResponseEntity.ok(productoService.findDisponiblesByRestaurante(new ObjectId(restauranteId)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> dameUno(@PathVariable ObjectId id) {
-        Producto producto = productoService.findById(id);
+    public ResponseEntity<?> dameUno(@PathVariable("id") String id) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        Producto producto = productoService.findById(new ObjectId(id));
         if (producto == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(producto);
     }
@@ -41,16 +43,18 @@ public class ProductoRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> modifica(@PathVariable ObjectId id, @RequestBody Producto producto) {
-        producto.setId(id);
+    public ResponseEntity<?> modifica(@PathVariable("id") String id, @RequestBody Producto producto) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        producto.setId(new ObjectId(id));
         Producto actualizado = productoService.updateOne(producto);
         if (actualizado == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(actualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> elimina(@PathVariable ObjectId id) {
-        int resultado = productoService.deleteOne(id);
+    public ResponseEntity<?> elimina(@PathVariable("id") String id) {
+        if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+        int resultado = productoService.deleteOne(new ObjectId(id));
         if (resultado == 1) return ResponseEntity.noContent().build();
         return ResponseEntity.notFound().build();
     }
