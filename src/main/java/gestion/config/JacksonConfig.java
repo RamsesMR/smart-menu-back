@@ -1,4 +1,4 @@
-package config;
+package gestion.config;
 
 import java.io.IOException;
 import org.bson.types.ObjectId;
