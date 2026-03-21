@@ -450,7 +450,7 @@ spring.mongodb.uri=mongodb://127.0.0.1:27017/smart_menu
 # spring.mongodb.uri=mongodb://userapp3:userapp3@127.0.0.1:27017/smart_menu?authSource=app3
 
 # JWT
-jwt.secret=0KjFbxtqqASu8Acyu6yA+HmilwrcRx4BpRagtnpk6PM=
+jwt.secret=TU_JWT
 jwt.expiration=3600000
 ```
 
