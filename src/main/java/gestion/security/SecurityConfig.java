@@ -65,8 +65,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/categoria/**").hasAnyRole("EMPRESA", "CLIENTE")
                 // Pedidos y recomendaciones
                 .requestMatchers(HttpMethod.PATCH, "/pedido/**").hasAnyRole("EMPRESA", "CLIENTE")
-                .requestMatchers("/pedido/**").hasAnyRole("EMPRESA", "CLIENTE")
-                .requestMatchers("/recommendations/**").hasAnyRole("EMPRESA", "CLIENTE")
+                .requestMatchers("/pedido/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
+                .requestMatchers("/recommendations/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
                 // Gestión usuarios: solo EMPRESA
                 .requestMatchers("/usuario/**").hasRole("EMPRESA")
                 .anyRequest().authenticated()
