@@ -23,8 +23,11 @@ public class RecommendationService {
     private final ProductoRepository productoRepository;
 
     public RecommendationResponse recomendar(RecommendationRequest req) {
-        if (req == null ) {
-            return RecommendationResponse.builder().kcalObjetivo(0).menus(List.of()).build();
+        if (req == null) {
+            return RecommendationResponse.builder()
+                    .kcalObjetivo(0)
+                    .menus(List.of())
+                    .build();
         }
 
         boolean incluirBebida = Boolean.TRUE.equals(req.getIncluirBebida());
@@ -33,14 +36,12 @@ public class RecommendationService {
                 ? req.getKcalObjetivo()
                 : estimarKcalMifflin(req);
 
-        List<Producto> base;
+        // 1. Obtener productos disponibles del restaurante
+        List<Producto> base = (req.getRestauranteId() != null)
+                ? productoRepository.findByRestauranteIdAndDisponibleTrue(req.getRestauranteId())
+                : productoRepository.findByDisponibleTrue();
 
-        if (req.getRestauranteId() != null) {
-            base = productoRepository.findByRestauranteIdAndDisponibleTrue(req.getRestauranteId());
-        } else {
-            base = productoRepository.findByDisponibleTrue();
-        }
-
+        // 2. Filtrar por dieta y alergenos
         List<Producto> filtrados = base.stream()
                 .filter(p -> p.getKcal() != null)
                 .filter(p -> cumpleDieta(p, req.getDieta()))
@@ -48,11 +49,30 @@ public class RecommendationService {
                 .filter(this::tieneTipo)
                 .toList();
 
-        List<Producto> principales = filtrados.stream().filter(p -> tieneTag(p, "PRINCIPAL")).toList();
-        List<Producto> entrantes   = filtrados.stream().filter(p -> tieneTag(p, "ENTRANTE")).toList();
-        List<Producto> postres     = filtrados.stream().filter(p -> tieneTag(p, "POSTRE")).toList();
-        List<Producto> bebidas     = incluirBebida
-                ? filtrados.stream().filter(p -> tieneTag(p, "BEBIDA")).toList()
+        // 3. Separar por tipo
+        List<Producto> principales = filtrados.stream()
+                .filter(p -> tieneTag(p, "PRINCIPAL"))
+                .sorted(Comparator.comparingInt(p -> Math.abs(safeInt(p.getKcal()) - kcalObjetivo / 2)))
+                .limit(5)
+                .toList();
+
+        List<Producto> entrantes = filtrados.stream()
+                .filter(p -> tieneTag(p, "ENTRANTE"))
+                .sorted(Comparator.comparingInt(p -> Math.abs(safeInt(p.getKcal()) - kcalObjetivo / 4)))
+                .limit(5)
+                .toList();
+
+        List<Producto> postres = filtrados.stream()
+                .filter(p -> tieneTag(p, "POSTRE"))
+                .sorted(Comparator.comparingInt(p -> Math.abs(safeInt(p.getKcal()) - kcalObjetivo / 4)))
+                .limit(5)
+                .toList();
+
+        List<Producto> bebidas = incluirBebida
+                ? filtrados.stream()
+                    .filter(p -> tieneTag(p, "BEBIDA"))
+                    .limit(5)
+                    .toList()
                 : List.of();
 
         if (principales.isEmpty()) {
@@ -62,38 +82,47 @@ public class RecommendationService {
                     .build();
         }
 
-        principales = limitar(principales, 18);
-        entrantes   = limitar(entrantes,   18);
-        postres     = limitar(postres,     18);
-        bebidas     = limitar(bebidas,     18);
+        // 4. Construir máximo 3 menús combinando los mejores candidatos
+        List<MenuSuggestion> menus = new ArrayList<>();
+        int intentos = Math.min(3, principales.size());
 
-        List<MenuSuggestion> candidatos = new ArrayList<>();
+        for (int i = 0; i < intentos; i++) {
+            Producto principal = principales.get(i);
 
-        for (Producto p : principales) {
-            for (Producto s : combinar2(entrantes, principales)) {
-                for (Producto t : combinar3(entrantes, postres, principales)) {
-                    List<Producto> menu = List.of(p, s, t);
-                    if (!sinRepetidos(menu)) continue;
-                    if (!menuValido(menu, incluirBebida, false)) continue;
-                    if (incluirBebida) {
-                        for (Producto b : bebidas) {
-                            List<Producto> menuConBebida = List.of(p, s, t, b);
-                            if (!sinRepetidos(menuConBebida)) continue;
-                            if (!menuValido(menuConBebida, true, true)) continue;
-                            candidatos.add(construirMenu(menuConBebida, kcalObjetivo, req));
-                        }
-                    } else {
-                        candidatos.add(construirMenu(menu, kcalObjetivo, req));
-                    }
-                }
+            // Elegir entrante distinto al principal
+            Producto entrante = entrantes.stream()
+                    .filter(p -> !mismoId(p, principal))
+                    .findFirst()
+                    .orElse(null);
+
+            // Elegir postre distinto a los anteriores
+            Producto postre = postres.stream()
+                    .filter(p -> !mismoId(p, principal))
+                    .filter(p -> entrante == null || !mismoId(p, entrante))
+                    .findFirst()
+                    .orElse(null);
+
+            // Construir lista de productos del menú
+            List<Producto> items = new ArrayList<>();
+            items.add(principal);
+            if (entrante != null) items.add(entrante);
+            if (postre   != null) items.add(postre);
+
+            // Añadir bebida si se requiere
+            if (incluirBebida && !bebidas.isEmpty()) {
+                Producto bebida = bebidas.stream()
+                        .filter(p -> !mismoId(p, principal))
+                        .findFirst()
+                        .orElse(null);
+                if (bebida != null) items.add(bebida);
             }
-        }
 
-        candidatos.sort(Comparator.comparingDouble(m -> score(m, kcalObjetivo, req)));
+            menus.add(construirMenu(items, kcalObjetivo, req));
+        }
 
         return RecommendationResponse.builder()
                 .kcalObjetivo(kcalObjetivo)
-                .menus(candidatos.stream().limit(3).toList())
+                .menus(menus)
                 .build();
     }
 
@@ -102,11 +131,23 @@ public class RecommendationService {
         int    altura = req.getAlturaCm() != null ? req.getAlturaCm() : 170;
         int    edad   = req.getEdad()     != null ? req.getEdad()     : 30;
 
-        double tmb  = 10 * peso + 6.25 * altura - 5.0 * edad - 78;
+        // Mifflin-St Jeor c
+        double tmb;
+        if (req.getSexo() == gestion.model.enums.Sexo.MUJER) {
+            tmb = 10 * peso + 6.25 * altura - 5.0 * edad - 161;
+        } else {
+            // HOMBRE o no especificado → usamos fórmula masculina por defecto
+            tmb = 10 * peso + 6.25 * altura - 5.0 * edad + 5;
+        }
+
+        // TDEE: TMB × factor de actividad (moderada = 1.55)
         double tdee = tmb * 1.55;
+
+        // Calorías por comida (3 comidas al día)
         double meal = tdee / 3.0;
 
-        if (req.getObjetivo() == GoalType.PERDER_PESO)   meal *= 0.80;
+        // Ajuste según objetivo
+        if (req.getObjetivo() == GoalType.PERDER_PESO)    meal *= 0.80;
         else if (req.getObjetivo() == GoalType.GANAR_MUSCULO) meal *= 1.15;
 
         return (int) Math.round(meal);
@@ -239,5 +280,11 @@ public class RecommendationService {
         out.addAll(postres);
         out.addAll(principales);
         return limitar(out, 25);
+    }
+    
+    private boolean mismoId(Producto a, Producto b) {
+        if (a == null || b == null) return false;
+        if (a.getId() == null || b.getId() == null) return false;
+        return a.getId().equals(b.getId());
     }
 }
