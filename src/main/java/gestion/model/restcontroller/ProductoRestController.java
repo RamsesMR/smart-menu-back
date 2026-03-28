@@ -44,6 +44,12 @@ public class ProductoRestController {
                 .precioConIva(producto.getPrecioConIva())
                 .imagen(producto.getImagen())
                 .disponible(producto.isDisponible())
+                .tags(producto.getTags())
+                .alergenos(producto.getAlergenos())
+                .kcal(producto.getKcal())
+                .proteinas(producto.getProteinas())
+                .grasas(producto.getGrasas())
+                .carbohidratos(producto.getCarbohidratos())
                 .build();
     }
 
