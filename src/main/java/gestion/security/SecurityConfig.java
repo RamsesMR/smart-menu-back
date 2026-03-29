@@ -61,8 +61,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT,    "/categoria/**").hasRole("EMPRESA")
                 .requestMatchers(HttpMethod.DELETE, "/categoria/**").hasRole("EMPRESA")
                 // Lectura de carta: autenticado
-                .requestMatchers(HttpMethod.GET, "/producto/**").hasAnyRole("EMPRESA", "CLIENTE")
-                .requestMatchers(HttpMethod.GET, "/categoria/**").hasAnyRole("EMPRESA", "CLIENTE")
+                .requestMatchers(HttpMethod.GET, "/producto/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
+                .requestMatchers(HttpMethod.GET, "/categoria/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
                 // Pedidos y recomendaciones
                 .requestMatchers(HttpMethod.PATCH, "/pedido/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
                 .requestMatchers("/pedido/**").hasAnyRole("EMPRESA", "CLIENTE","EMPLEADO")
