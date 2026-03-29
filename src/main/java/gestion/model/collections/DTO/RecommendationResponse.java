@@ -8,6 +8,6 @@ import lombok.Data;
 @Data
 @Builder
 public class RecommendationResponse {
-  private int kcalObjetivo;
-  private List<MenuSuggestion> menus;
+    private int kcalObjetivo;
+    private List<MenuSuggestionDto> menus;
 }
