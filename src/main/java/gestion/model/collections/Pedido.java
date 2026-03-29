@@ -26,20 +26,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Pedido implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     @Id
+    private String id; // ← CAMBIO: String en lugar de ObjectId
+
     @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId id;
-    @JsonSerialize(using = ToStringSerializer.class)
-    private ObjectId usuarioId; // FK al cliente (relación 1:N)
+    private ObjectId usuarioId;
+
     private String codigo;
     private String mesaId;
     private EstadoPedido estado;
     private String nota;
     private List<LineaPedido> lineasPedido;
     private BigDecimal totalPedido;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private LocalDateTime fechaCreacion; // ISODate con hora para dashboard cocina
+    private LocalDateTime fechaCreacion;
 }
