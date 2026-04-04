@@ -450,7 +450,7 @@ spring.mongodb.uri=mongodb://127.0.0.1:27017/smart_menu
 # spring.mongodb.uri=mongodb://userapp3:userapp3@127.0.0.1:27017/smart_menu?authSource=app3
 
 # JWT
-jwt.secret=?????
+jwt.secret=TU_JWT
 jwt.expiration=3600000
 ```
 
@@ -528,7 +528,7 @@ El proyecto incluye la clase de prueba base `SmartMenuBackApplicationTests` gene
 
 ## 👤 Autor
 
-Desarrollado por **Bryan** como proyecto backend para el sistema **Smart Menu**.
+Desarrollado por **BRYAN, RAMSES, TANIMARA** como proyecto backend para el sistema **Smart Menu**.
 
 ---
 
