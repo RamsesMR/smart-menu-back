@@ -1,10 +1,8 @@
 package gestion.model.service;
 
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-
 import gestion.model.collections.Pedido;
 import gestion.model.enums.EstadoPedido;
 import gestion.model.repository.PedidoRepository;
@@ -17,7 +15,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final PedidoRepository pedidoRepository;
 
     @Override
-    public Pedido findById(ObjectId pedidoId) {
+    public Pedido findById(String pedidoId) {
         return pedidoRepository.findById(pedidoId).orElse(null);
     }
 
@@ -53,7 +51,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public Pedido cambiarEstado(ObjectId pedidoId, EstadoPedido nuevoEstado) {
+    public Pedido cambiarEstado(String pedidoId, EstadoPedido nuevoEstado) {
         return pedidoRepository.findById(pedidoId).map(pedido -> {
             pedido.setEstado(nuevoEstado);
             return pedidoRepository.save(pedido);
@@ -61,7 +59,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public int deleteOne(ObjectId pedidoId) {
+    public int deleteOne(String pedidoId) {
         if (pedidoRepository.existsById(pedidoId)) {
             pedidoRepository.deleteById(pedidoId);
             return 1;

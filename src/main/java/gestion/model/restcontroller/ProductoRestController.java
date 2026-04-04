@@ -1,10 +1,15 @@
 package gestion.model.restcontroller;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import gestion.model.collections.Categoria;
 import gestion.model.collections.Producto;
+import gestion.model.collections.DTO.ProductoDto;
+import gestion.model.service.CategoriaService;
 import gestion.model.service.ProductoService;
 import lombok.RequiredArgsConstructor;
 
@@ -14,48 +19,86 @@ import lombok.RequiredArgsConstructor;
 public class ProductoRestController {
 
     private final ProductoService productoService;
+    private final CategoriaService categoriaService;
+
+    private ProductoDto toDto(Producto producto) {
+        String categoriaNombre = null;
+
+        if (producto.getCategoriaId() != null) {
+            Categoria categoria = categoriaService.findById(producto.getCategoriaId());
+            if (categoria != null) {
+                categoriaNombre = categoria.getNombre();
+            }
+        }
+
+        return ProductoDto.builder()
+                .id(producto.getId() != null ? producto.getId().toHexString() : null)
+                .categoriaId(producto.getCategoriaId() != null ? producto.getCategoriaId().toHexString() : null)
+                .categoria(categoriaNombre)
+                .restauranteId(producto.getRestauranteId() != null ? producto.getRestauranteId().toHexString() : null)
+                .nombre(producto.getNombre())
+                .descripcion(producto.getDescripcion())
+                .precio(producto.getPrecio())
+                .tipoIva(producto.getTipoIva())
+                .importeIva(producto.getImporteIva())
+                .precioConIva(producto.getPrecioConIva())
+                .imagen(producto.getImagen())
+                .disponible(producto.isDisponible())
+                .tags(producto.getTags())
+                .alergenos(producto.getAlergenos())
+                .kcal(producto.getKcal())
+                .proteinas(producto.getProteinas())
+                .grasas(producto.getGrasas())
+                .carbohidratos(producto.getCarbohidratos())
+                .build();
+    }
 
     @GetMapping
     public ResponseEntity<?> dameTodos() {
-        return ResponseEntity.ok(productoService.findAll());
-    }
+        List<ProductoDto> productos = productoService.findAll()
+                .stream()
+                .map(this::toDto)
+                .toList();
 
-    // GET /producto/disponibles?restauranteId=abc123
-    @GetMapping("/disponibles")
-    public ResponseEntity<?> disponibles(@RequestParam("restauranteId") String restauranteId) {
-        if (!ObjectId.isValid(restauranteId)) return ResponseEntity.badRequest().body("ID inválido");
-        return ResponseEntity.ok(productoService.findDisponiblesByRestaurante(new ObjectId(restauranteId)));
+        return ResponseEntity.ok(productos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> dameUno(@PathVariable("id") String id) {
+    public ResponseEntity<?> dameUno(@PathVariable String id) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+
         Producto producto = productoService.findById(new ObjectId(id));
         if (producto == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(producto);
+
+        return ResponseEntity.ok(toDto(producto));
     }
 
     @PostMapping
-    public ResponseEntity<?> inserta(@RequestBody Producto producto) {
+    public ResponseEntity<?> insertar(@RequestBody Producto producto) {
         Producto guardado = productoService.insertOne(producto);
         if (guardado == null) return ResponseEntity.status(409).body("El producto ya existe");
-        return ResponseEntity.status(201).body(guardado);
+
+        return ResponseEntity.status(201).body(toDto(guardado));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> modifica(@PathVariable("id") String id, @RequestBody Producto producto) {
+    public ResponseEntity<?> editar(@PathVariable String id, @RequestBody Producto producto) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+
         producto.setId(new ObjectId(id));
         Producto actualizado = productoService.updateOne(producto);
         if (actualizado == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(actualizado);
+
+        return ResponseEntity.ok(toDto(actualizado));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> elimina(@PathVariable("id") String id) {
+    public ResponseEntity<?> borrar(@PathVariable String id) {
         if (!ObjectId.isValid(id)) return ResponseEntity.badRequest().body("ID inválido");
+
         int resultado = productoService.deleteOne(new ObjectId(id));
         if (resultado == 1) return ResponseEntity.noContent().build();
+
         return ResponseEntity.notFound().build();
     }
 }
